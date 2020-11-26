@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EditItinerary">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:id="@+id/edit_itinerary_title"
+            android:text="your itinerary"
+            android:textColor="@color/black"
+            android:textSize="25dp"
+            android:padding="10dp"
+            android:fontFamily="@font/circular_std_med"/>
+
+        <Button
+            style="@android:style/Widget.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="25dp"
+            android:layout_margin="10dp"
+            android:id="@+id/finish_editing"
+            android:onClick="finishEditing"
+            android:background="@drawable/rounded_button"
+            android:fontFamily="@font/circular_std_med"
+            android:text="done"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/playlist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/circular_std_med"
+            android:padding="10dp"
+            android:text="playlist"
+            android:textColor="@color/black"
+            android:textSize="25dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="weather outlook: decent"
+            android:textColor="@color/black"
+            android:textSize="25dp"
+            android:padding="10dp"
+            android:id="@+id/weather_outlook"
+            android:fontFamily="@font/circular_std_med"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    </LinearLayout>
+</LinearLayout>

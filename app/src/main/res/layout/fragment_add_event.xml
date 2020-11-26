@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/add_event_container"
+    tools:context=".AddEventFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:fontFamily="@font/circular_std_med"
+        android:id="@+id/description_input"
+        android:hint="Your day" />
+
+    <Button
+        style="@android:style/Widget.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="set date"
+        android:background="@drawable/rounded_button"
+        android:fontFamily="@font/circular_std_med"
+        android:layout_margin="10dp"
+        android:onClick="showDatePickerDialog"/>
+    <Button
+        style="@android:style/Widget.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="set time"
+        android:background="@drawable/rounded_button"
+        android:fontFamily="@font/circular_std_med"
+        android:layout_margin="10dp"
+        android:onClick="showTimePickerDialog"/>
+    <Button
+        style="@android:style/Widget.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button"
+        android:fontFamily="@font/circular_std_med"
+        android:layout_margin="10dp"
+        android:text="add flight" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/test_text"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/test_text_2"/>
+
+</LinearLayout>
