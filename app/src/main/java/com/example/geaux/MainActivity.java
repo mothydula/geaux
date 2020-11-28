@@ -12,6 +12,8 @@ import androidx.lifecycle.ViewModelProviders;
 
 import java.io.File;
 
+import static com.example.geaux.EditItinerary.newItinerary;
+
 public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPrefs;
     public static MyViewModel model;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goToEditNew(View view) {
+        newItinerary = true;
         Intent intent = new Intent(MainActivity.this, EditItinerary.class);
         intent.putExtra(NEW_ITINERARY, true);
         startActivity(intent);

@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.Collections;
+
 import static com.example.geaux.MainActivity.currentItinerary;
 
 /**
@@ -77,6 +79,7 @@ public class ItineraryItems extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ListView listView = (ListView) this.containerActivity.findViewById(R.id.itinerary_events);
+        Collections.sort(currentItinerary.getEvents());
         itineraryEventArrayAdapter = new EventArrayAdapter(this.containerActivity, currentItinerary.getEvents());
         listView.setAdapter(itineraryEventArrayAdapter);
     }

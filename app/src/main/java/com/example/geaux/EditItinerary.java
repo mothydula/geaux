@@ -14,7 +14,7 @@ import static com.example.geaux.MainActivity.currentItinerary;
 import static com.example.geaux.MainActivity.model;
 
 public class EditItinerary extends AppCompatActivity {
-    private boolean newItinerary;
+    public static boolean newItinerary = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,7 +22,8 @@ public class EditItinerary extends AppCompatActivity {
         Intent intent = getIntent();
         intent.getBooleanExtra(NEW_ITINERARY, true);
         EditText itinTitle = (EditText)findViewById(R.id.edit_itinerary_title);
-        itinTitle.setText(currentItinerary.getName());
+        if(!newItinerary)
+            itinTitle.setText(currentItinerary.getName());
     }
 
     public void finishEditing(View view) {
@@ -33,7 +34,6 @@ public class EditItinerary extends AppCompatActivity {
             ItineraryObject newItinerary = new ItineraryObject(itineraryTitle, new ArrayList<ItineraryItem>());
             model.addItinerary(newItinerary);
             currentItinerary = newItinerary;
-
         }
         else{
             currentItinerary.setName(itineraryTitle);

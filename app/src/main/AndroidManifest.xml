@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Geaux">
-        <activity android:name=".EditItinerary"></activity>
+        <activity android:name=".EventDetails"></activity>
+        <activity android:name=".EditItinerary" />
         <activity android:name=".Flights" />
         <activity android:name=".Itinerary" />
         <activity android:name=".Itineraries" />

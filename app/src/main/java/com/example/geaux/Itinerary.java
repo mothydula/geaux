@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,7 +18,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.example.geaux.ItineraryItems.itineraryEventArrayAdapter;
+import static com.example.geaux.AddEventFragment.textCountNonZero;
 import static com.example.geaux.MainActivity.NEW_ITINERARY;
 import static com.example.geaux.MainActivity.currentItinerary;
 
@@ -25,19 +26,26 @@ public class Itinerary extends AppCompatActivity
         implements DatePickerDialog.OnDateSetListener , TimePickerDialog.OnTimeSetListener{
     private ItineraryObject itinerary;
     private String newDateTime = "";
+    private String newTimeFormatted = "";
     private String newDate = "";
+    private String newDateFormatted = "";
     private String newTime = "";
     private String timeOfDay = "";
     private String newDescription;
     private boolean addingToggle = false;
+    public static boolean dateSet = false;
+    public static boolean timeSet = false;
+    private Button addEventButton;
     public static ItineraryItem currentEvent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itinerary);
-
         TextView itinTitle = (TextView)findViewById(R.id.itinerary_title);
         itinTitle.setText(currentItinerary.getName());
+
+        this.addEventButton = (Button)findViewById(R.id.add_event_button);
+
 
         //Start itinerary events list fragment
         ItineraryItems itinItemsFrag = new ItineraryItems();
@@ -80,30 +88,32 @@ public class Itinerary extends AppCompatActivity
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.itinerary_items_outer_container, addEventFrag);
             transaction.commit();
+            this.addEventButton.setVisibility(View.INVISIBLE);
             addingToggle = true;
         }
         else{
-            this.newDateTime = this.newDate + "" + this.timeOfDay;
+            this.newDateTime = this.newDateFormatted + "\n" + this.newTimeFormatted;
             EditText editText = (EditText)findViewById(R.id.description_input);
             this.newDescription = editText.getText().toString();
-            ItineraryItem itineraryItem = new ItineraryItem(this.newDate, this.newTime, this.newDescription, new FlightObject(), this.newDateTime);
+            ItineraryItem itineraryItem = new ItineraryItem(this.newDate, this.newTime, this.newDateFormatted, this.newTimeFormatted, this.newDescription, new FlightObject(), this.newDateTime);
             currentItinerary.addEvent(itineraryItem);
-            itineraryEventArrayAdapter.notifyDataSetChanged();
+
 
             if(getSupportFragmentManager().findFragmentById(R.id.add_event_container) != null) {
                 getSupportFragmentManager()
                         .beginTransaction().
                         remove(getSupportFragmentManager().findFragmentById(R.id.add_event_container)).commit();
             }
-
+            System.out.println("ONE");
             //Start itinerary events list fragment
             ItineraryItems itinItemsFrag = new ItineraryItems();
             itinItemsFrag.setContainerActivity(this);
-
+            System.out.println("TWO");
             //Create transaction for list fragment
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.itinerary_items_outer_container, itinItemsFrag);
             transaction.commit();
+            System.out.println("THREE");
             addingToggle = false;
         }
     }
@@ -121,8 +131,16 @@ public class Itinerary extends AppCompatActivity
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth){
+        int[] months = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+        month = months[month];
+        System.out.println("MONTH: " + month);
         String date = "month/day/month: " + month + "/" + dayOfMonth + "/" + year;
-        this.newDate = month + "" + dayOfMonth + "" + year;
+        this.newDateFormatted = month + "/" + dayOfMonth + "/" + year;
+        this.newDate = getSingleDigitValue(year-2000) + "" + getSingleDigitValue(month) + "" + getSingleDigitValue(dayOfMonth);
+        this.dateSet = true;
+        if(this.dateSet && this.timeSet && textCountNonZero){
+            this.addEventButton.setVisibility(View.VISIBLE);
+        }
         TextView textView = (TextView)findViewById(R.id.test_text);
         textView.setText(this.newDate);
     }
@@ -139,9 +157,13 @@ public class Itinerary extends AppCompatActivity
 
     @Override
     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-
-        this.newTime = getTimeOfDayValuedHour(hour).get(0) + ":" + minute + " " + getTimeOfDayValuedHour(hour).get(1);
-        this.timeOfDay = hour + "" + minute;
+        this.newTime = getTimeOfDayValuedHour(hour).get(0) + "" + getSingleDigitValue(minute);
+        this.newTimeFormatted = getTimeOfDayValuedHour(hour).get(0) + ":" + getSingleDigitValue(minute) + " " + getTimeOfDayValuedHour(hour).get(1);
+        this.timeOfDay = getSingleDigitValue(hour) + "" + getSingleDigitValue(minute);
+        this.timeSet = true;
+        if(this.dateSet && this.timeSet && textCountNonZero){
+            this.addEventButton.setVisibility(View.VISIBLE);
+        }
         TextView textView = (TextView) findViewById(R.id.test_text_2);
         textView.setText(this.timeOfDay);
     }
@@ -156,16 +178,24 @@ public class Itinerary extends AppCompatActivity
             return returnArray;
         }
         if(hour > 12) {
-            List<String> returnArray = Arrays.asList(Integer.toString(hour-12), "PM");
+            List<String> returnArray = Arrays.asList(getSingleDigitValue(hour-12), "PM");
             return returnArray;
         }
         else{
-            List<String> returnArray = Arrays.asList(Integer.toString(hour), "PM");
+            List<String> returnArray = Arrays.asList(getSingleDigitValue(hour-12), "PM");
             return returnArray;
         }
 
     }
 
+    private String getSingleDigitValue(int value){
+        if(value < 10){
+            return "0"+value;
+        }
+        else {
+            return ""+value;
+        }
+    }
     @Override
     protected void onStop() {
         super.onStop();
