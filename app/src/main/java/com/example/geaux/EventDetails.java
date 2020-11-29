@@ -1,9 +1,14 @@
 package com.example.geaux;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -19,7 +24,7 @@ import static com.example.geaux.EventArrayAdapter.currentItineraryItem;
 import static com.example.geaux.ItineraryItems.itineraryEventArrayAdapter;
 import static com.example.geaux.MainActivity.currentItinerary;
 
-public class EventDetails extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
+public class EventDetails extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener, DialogInterface.OnCancelListener, DialogInterface.OnDismissListener{
     private String newDateTime = "";
     private String newTimeFormatted = "";
     private String newDate = "";
@@ -34,12 +39,38 @@ public class EventDetails extends AppCompatActivity implements DatePickerDialog.
         setContentView(R.layout.activity_event_details);
         TextView description = (TextView)findViewById(R.id.description_in_details);
         description.setText(currentItineraryItem.getDescription());
-
+        Activity thisActivity = this;
         dateText = (TextView) findViewById(R.id.date_in_details);
         timeText = (TextView) findViewById(R.id.time_in_details);
 
         dateText.setText(currentItineraryItem.getFormattedDate());
         timeText.setText(currentItineraryItem.getFormattedTime());
+
+        AlertDialog LDialog = new AlertDialog.Builder(this)
+                .setTitle("Remove Event")
+                .setMessage("Are you sure you want to remove this event?")
+                .setOnCancelListener(this)
+                .setOnDismissListener(this)
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        System.out.println("CANCELLED");
+                    }
+                })
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        currentItinerary.getEvents().remove(currentItineraryItem);
+                        Intent intent = new Intent(thisActivity, Itinerary.class);
+                        startActivity(intent);
+                    }
+                }).create();
+
+        Button removeEventButton = (Button)findViewById(R.id.remove_event);
+        removeEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LDialog.show();
+            }
+        });
 
     }
 
@@ -126,5 +157,15 @@ public class EventDetails extends AppCompatActivity implements DatePickerDialog.
         else {
             return ""+value;
         }
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialogInterface) {
+        System.out.println("CANCELLED");
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialogInterface) {
+
     }
 }

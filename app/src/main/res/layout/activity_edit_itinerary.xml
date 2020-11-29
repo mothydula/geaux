@@ -57,6 +57,20 @@
             android:id="@+id/weather_outlook"
             android:fontFamily="@font/circular_std_med"/>
     </LinearLayout>
+    <Button
+        style="@android:style/Widget.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="25dp"
+        android:layout_margin="10dp"
+        android:padding="10dp"
+        android:id="@+id/remove_itinerary"
+        android:onClick="finishEditing"
+        android:background="@drawable/rounded_button"
+        android:fontFamily="@font/circular_std_med"
+        android:text="remove itinerary"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

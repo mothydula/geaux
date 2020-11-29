@@ -44,17 +44,39 @@
             android:fontFamily="@font/circular_std_med"
             android:padding="10dp"
             android:text="playlist"
+            android:onClick="openPlaylists"
             android:textColor="@color/black"
-            android:textSize="25dp" />
+            android:textSize="20dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:text="weather outlook: decent"
+            android:layout_width="225dp"
+            android:layout_height="wrap_content"
+            android:text="weather: decent"
             android:textColor="@color/black"
-            android:textSize="25dp"
+            android:textSize="20dp"
             android:padding="10dp"
             android:id="@+id/weather_outlook"
             android:fontFamily="@font/circular_std_med"/>
+            <EditText
+                android:layout_width="110dp"
+                android:layout_height="match_parent"
+                android:textColor="@color/black"
+                android:fontFamily="@font/circular_std_med"
+                android:hint="zip code"
+                android:id="@+id/zip_code_input"
+                android:textSize="20dp"/>
+            <Button
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:text="go"
+                android:textColor="@color/black"
+                android:background="@drawable/rounded_button"
+                android:onClick="getWeather"
+                android:textSize="15dp"
+                android:fontFamily="@font/circular_std_med"/>
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

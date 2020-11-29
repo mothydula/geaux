@@ -12,8 +12,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Geaux">
-        <activity android:name=".EventDetails"></activity>
+        android:theme="@style/Theme.Geaux"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".PlaylistActivity"></activity>
+        <activity android:name=".EventDetails" />
         <activity android:name=".EditItinerary" />
         <activity android:name=".Flights" />
         <activity android:name=".Itinerary" />

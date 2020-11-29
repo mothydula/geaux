@@ -35,17 +35,19 @@ public class Itinerary extends AppCompatActivity
     private boolean addingToggle = false;
     public static boolean dateSet = false;
     public static boolean timeSet = false;
+    public static String itineraryWeather = "";
     private Button addEventButton;
     public static ItineraryItem currentEvent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itinerary);
+
+
         TextView itinTitle = (TextView)findViewById(R.id.itinerary_title);
         itinTitle.setText(currentItinerary.getName());
 
         this.addEventButton = (Button)findViewById(R.id.add_event_button);
-
 
         //Start itinerary events list fragment
         ItineraryItems itinItemsFrag = new ItineraryItems();
@@ -114,6 +116,8 @@ public class Itinerary extends AppCompatActivity
             transaction.replace(R.id.itinerary_items_outer_container, itinItemsFrag);
             transaction.commit();
             System.out.println("THREE");
+            dateSet = false;
+            timeSet = false;
             addingToggle = false;
         }
     }
@@ -157,9 +161,10 @@ public class Itinerary extends AppCompatActivity
 
     @Override
     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-        this.newTime = getTimeOfDayValuedHour(hour).get(0) + "" + getSingleDigitValue(minute);
+        this.newTime = getSingleDigitValue(hour) + "" + getSingleDigitValue(minute);
+        System.out.println("TIME: " + this.newTime);
         this.newTimeFormatted = getTimeOfDayValuedHour(hour).get(0) + ":" + getSingleDigitValue(minute) + " " + getTimeOfDayValuedHour(hour).get(1);
-        this.timeOfDay = getSingleDigitValue(hour) + "" + getSingleDigitValue(minute);
+        //this.timeOfDay = getSingleDigitValue(hour) + "" + getSingleDigitValue(minute);
         this.timeSet = true;
         if(this.dateSet && this.timeSet && textCountNonZero){
             this.addEventButton.setVisibility(View.VISIBLE);
@@ -182,10 +187,14 @@ public class Itinerary extends AppCompatActivity
             return returnArray;
         }
         else{
-            List<String> returnArray = Arrays.asList(getSingleDigitValue(hour-12), "PM");
+            List<String> returnArray = Arrays.asList(getSingleDigitValue(hour), "AM");
             return returnArray;
         }
 
+    }
+
+    public void addFlight(View view){
+        new GetFlightsTask().execute();
     }
 
     private String getSingleDigitValue(int value){
@@ -200,5 +209,15 @@ public class Itinerary extends AppCompatActivity
     protected void onStop() {
         super.onStop();
         new RetrieveViewModelTask(this, "WRITE").execute();
+    }
+
+    public void getWeather(View view) {
+        EditText editText = (EditText)findViewById(R.id.zip_code_input);
+        String zipCode = editText.getText().toString();
+        new GetWeatherTask(zipCode, this).execute();
+    }
+
+    public void openPlaylists(View view) {
+        new GetPlaylistTask(itineraryWeather).execute();
     }
 }

@@ -64,8 +64,8 @@ public class ItineraryItem implements Comparable{
 
     @Override
     public int compareTo(Object o) {
-        System.out.println("LOOK AT ME: " + ((ItineraryItem)o).getDate());
-        System.out.println("LOOK AT ME 2: " + (this.date));
+        System.out.println("LOOK AT ME: " + ((ItineraryItem)o).getTime());
+        System.out.println("LOOK AT ME 2: " + (this.time));
         int myDate = Integer.parseInt(this.date);
         int myTime = Integer.parseInt(this.time);
         System.out.println("DONE ONCE");
