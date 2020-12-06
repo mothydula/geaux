@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/outer_container"
+    tools:context=".HelpFragment"
+    android:orientation="vertical"
+    android:padding="15dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:fontFamily="@font/circular_std_med"
+        android:textColor="@color/black"
+        android:text="Help"
+        android:textSize="15dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:textColor="@color/black"
+        android:text="1. To create a new itinerary, press the &quot;new&quot; button."
+        android:fontFamily="@font/circular_std_med"
+        android:textSize="15dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:textColor="@color/black"
+        android:text="2. When creating the itinerary you can enter the name of the itinerary in the name field and you can change it any time by pressing edit"
+        android:fontFamily="@font/circular_std_med"
+        android:textSize="15dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:textColor="@color/black"
+        android:text="3. To remove an itinerary, press the &quot;edit&quot; button and press &quot;remove itinerary&quot;"
+        android:fontFamily="@font/circular_std_med"
+        android:textSize="15dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:textColor="@color/black"
+        android:text="4. To add an event, you can press the add event button and you must add a date, time and description with an optional flight"
+        android:fontFamily="@font/circular_std_med"
+        android:textSize="15dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:textColor="@color/black"
+        android:text="5. To remove an itinerary event, click the details button and press the remove event button"
+        android:fontFamily="@font/circular_std_med"
+        android:textSize="15dp"/>
+</LinearLayout>

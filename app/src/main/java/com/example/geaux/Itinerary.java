@@ -3,22 +3,37 @@ package com.example.geaux;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentTransaction;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static com.example.geaux.AddEventFragment.textCountNonZero;
+import static com.example.geaux.ContactsActivity.uri;
 import static com.example.geaux.MainActivity.NEW_ITINERARY;
 import static com.example.geaux.MainActivity.currentItinerary;
 
@@ -38,6 +53,7 @@ public class Itinerary extends AppCompatActivity
     public static String itineraryWeather = "";
     private Button addEventButton;
     public static ItineraryItem currentEvent;
+    private String currentPhotoPath = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,6 +138,106 @@ public class Itinerary extends AppCompatActivity
         }
     }
 
+    public void openContacts(View view) {
+
+        uri = null;
+        ListView listView = (ListView) findViewById(R.id.itinerary_events);
+        //Get bitmap of the Drawing
+        Bitmap bitmap = getScreenBitmap(view);
+        Canvas canvas = new Canvas(bitmap);
+        listView.draw(canvas);
+        File file = null;
+        try {
+            file = createImageFile();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (file != null) {
+            FileOutputStream outputStream;
+            try {
+                outputStream = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 70, outputStream);
+                outputStream.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            uri = FileProvider.getUriForFile(this, "com.example.geaux.fileprovider", file);
+        }
+
+        //Start contacts activity
+        Intent intent = new Intent(this, ContactsActivity.class);
+        startActivity(intent);
+    }
+
+    private Bitmap getBitmapFromView(View view, int height, int width) {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null)
+            bgDrawable.draw(canvas);
+        else
+            canvas.drawColor(Color.WHITE);
+        view.draw(canvas);
+        return bitmap;
+    }
+
+    public Bitmap getScreenBitmap(View v) {
+        v.setDrawingCacheEnabled(true);
+        v.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
+
+        v.buildDrawingCache(true);
+        Bitmap b = Bitmap.createBitmap(v.getDrawingCache());
+        v.setDrawingCacheEnabled(false); // clear drawing cache
+        return b;
+    }
+
+    public static Bitmap getWholeListViewItemsToBitmap(ListView listView) {
+        ListAdapter adapter  = listView.getAdapter();
+        int itemscount       = adapter.getCount();
+        int allitemsheight   = 0;
+        List<Bitmap> bmps    = new ArrayList<Bitmap>();
+
+        for (int i = 0; i < itemscount; i++) {
+
+            View childView      = adapter.getView(i, null, listView);
+            childView.measure(View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+
+            childView.layout(0, 0, childView.getMeasuredWidth(), childView.getMeasuredHeight());
+            childView.setDrawingCacheEnabled(true);
+            childView.buildDrawingCache();
+            bmps.add(childView.getDrawingCache());
+            allitemsheight+=childView.getMeasuredHeight();
+        }
+
+        Bitmap bigbitmap    = Bitmap.createBitmap(listView.getMeasuredWidth(), allitemsheight, Bitmap.Config.ARGB_8888);
+        Canvas bigcanvas    = new Canvas(bigbitmap);
+
+        Paint paint = new Paint();
+        int iHeight = 0;
+
+        for (int i = 0; i < bmps.size(); i++) {
+            Bitmap bmp = bmps.get(i);
+            bigcanvas.drawBitmap(bmp, 0, iHeight, paint);
+            iHeight+=bmp.getHeight();
+
+            bmp.recycle();
+            bmp=null;
+        }
+        return bigbitmap;
+    }
+
+    private File createImageFile() throws Exception {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
     public void showDatePickerDialog(View view){
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,
@@ -146,7 +262,6 @@ public class Itinerary extends AppCompatActivity
             this.addEventButton.setVisibility(View.VISIBLE);
         }
         TextView textView = (TextView)findViewById(R.id.test_text);
-        textView.setText(this.newDate);
     }
 
     public void showTimePickerDialog(View view){

@@ -168,4 +168,8 @@ public class EventDetails extends AppCompatActivity implements DatePickerDialog.
     public void onDismiss(DialogInterface dialogInterface) {
 
     }
+
+    public void getFlight(View view) {
+        new GetFlightsTask().execute();
+    }
 }
