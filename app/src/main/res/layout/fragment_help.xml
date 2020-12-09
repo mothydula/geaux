@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:textColor="@color/black"
-        android:text="4. To add an event, you can press the add event button and you must add a date, time and description with an optional flight"
+        android:text="4. To add an event, you can press the add event button. A date, time and description are required with an optional flight"
         android:fontFamily="@font/circular_std_med"
         android:textSize="15dp"/>
     <TextView

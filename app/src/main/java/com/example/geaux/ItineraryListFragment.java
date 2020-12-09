@@ -72,6 +72,7 @@ public class ItineraryListFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        //Display all of the itineraries available to the user
         ListView listView = (ListView) this.containerActivity.findViewById(R.id.itinerary_list_view);
         ItineraryArrayAdapter itineraryArrayAdapter = new ItineraryArrayAdapter(this.containerActivity, model.getItineraries());
         listView.setAdapter(itineraryArrayAdapter);

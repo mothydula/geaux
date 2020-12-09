@@ -48,6 +48,7 @@ public class GetWeatherTask extends AsyncTask<Void, Void, JSONObject> {
     @Override
     protected void onPostExecute(JSONObject jsonObject) {
         super.onPostExecute(jsonObject);
+        //Set weather text when task has completed
         TextView weatherText = (TextView)this.containerActivity.findViewById(R.id.weather_outlook);
         weatherText.setText("weather: "+this.weather+", "+this.temperature);
     }

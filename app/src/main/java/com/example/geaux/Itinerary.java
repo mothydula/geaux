@@ -1,7 +1,10 @@
 package com.example.geaux;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -34,11 +37,12 @@ import java.util.List;
 
 import static com.example.geaux.AddEventFragment.textCountNonZero;
 import static com.example.geaux.ContactsActivity.uri;
+import static com.example.geaux.EventArrayAdapter.currentItineraryItem;
 import static com.example.geaux.MainActivity.NEW_ITINERARY;
 import static com.example.geaux.MainActivity.currentItinerary;
 
 public class Itinerary extends AppCompatActivity
-        implements DatePickerDialog.OnDateSetListener , TimePickerDialog.OnTimeSetListener{
+        implements DatePickerDialog.OnDateSetListener , TimePickerDialog.OnTimeSetListener, DialogInterface.OnCancelListener, DialogInterface.OnDismissListener{
     private ItineraryObject itinerary;
     private String newDateTime = "";
     private String newTimeFormatted = "";
@@ -52,8 +56,11 @@ public class Itinerary extends AppCompatActivity
     public static boolean timeSet = false;
     public static String itineraryWeather = "";
     private Button addEventButton;
+    private Button sendContactButton;
     public static ItineraryItem currentEvent;
     private String currentPhotoPath = "";
+    private Activity thisActivity = this;
+    private AlertDialog LDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +71,8 @@ public class Itinerary extends AppCompatActivity
         itinTitle.setText(currentItinerary.getName());
 
         this.addEventButton = (Button)findViewById(R.id.add_event_button);
-
+        this.sendContactButton = (Button)findViewById(R.id.send_itin_button);
+        this.sendContactButton.setVisibility(View.VISIBLE);
         //Start itinerary events list fragment
         ItineraryItems itinItemsFrag = new ItineraryItems();
         itinItemsFrag.setContainerActivity(this);
@@ -73,9 +81,29 @@ public class Itinerary extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.itinerary_items_outer_container, itinItemsFrag);
         transaction.commit();
+
+        //Set up dialog for adding a flight to an event in the EventDetailsFragment (this is the parent activity of that fragment)
+        this.LDialog = new AlertDialog.Builder(this)
+                .setTitle("Add Flight")
+                .setMessage("Do you want to add a flight to this event?")
+                .setOnCancelListener(this)
+                .setOnDismissListener(this)
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                })
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        currentItinerary.getEvents().remove(currentItineraryItem);
+                        Intent intent = new Intent(thisActivity, Itinerary.class);
+                        startActivity(intent);
+                    }
+                }).create();
     }
 
     public void editItinerary(View view) {
+        //Go to edit itinerary page
         Intent intent = new Intent(this, EditItinerary.class);
         intent.putExtra(NEW_ITINERARY, false);
         intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -85,12 +113,14 @@ public class Itinerary extends AppCompatActivity
     @Override
     public void onBackPressed()
     {
+        //Specifiy which activity this goes to when the back button is pressed
         Intent intent = new Intent(this, Itineraries.class);
         intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
 
     public void addEvent(View view) {
+        //If the Add event fragment is not up yet, remove the itinerary items list fragment and diplay the add events fragment
         if(!addingToggle){
             if(getSupportFragmentManager().findFragmentById(R.id.itinerary_items_container) != null) {
                 getSupportFragmentManager()
@@ -106,32 +136,57 @@ public class Itinerary extends AppCompatActivity
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.itinerary_items_outer_container, addEventFrag);
             transaction.commit();
+            //Set the add event to invisible as the description, date and time have not been set yet
             this.addEventButton.setVisibility(View.INVISIBLE);
+            this.sendContactButton.setVisibility(View.INVISIBLE);
+            //Set toggle to true telling the application that an event is currently being added and that the add events fragment is being displayed
             addingToggle = true;
         }
+        //This means that the adding event fragment is up and pressing add event will store this event into the itinerary
         else{
             this.newDateTime = this.newDateFormatted + "\n" + this.newTimeFormatted;
             EditText editText = (EditText)findViewById(R.id.description_input);
             this.newDescription = editText.getText().toString();
-            ItineraryItem itineraryItem = new ItineraryItem(this.newDate, this.newTime, this.newDateFormatted, this.newTimeFormatted, this.newDescription, new FlightObject(), this.newDateTime);
+
+            //Create new itinerary item/event and add it to the global currentItinerary variable
+            ItineraryItem itineraryItem = new ItineraryItem(this.newDate, this.newTime, this.newDateFormatted, this.newTimeFormatted, this.newDescription, this.newDateTime);
             currentItinerary.addEvent(itineraryItem);
 
+            //Point the global current itinerary item veribale to this new itineraryitem/event
+            currentItineraryItem = itineraryItem;
 
-            if(getSupportFragmentManager().findFragmentById(R.id.add_event_container) != null) {
-                getSupportFragmentManager()
-                        .beginTransaction().
-                        remove(getSupportFragmentManager().findFragmentById(R.id.add_event_container)).commit();
-            }
-            System.out.println("ONE");
-            //Start itinerary events list fragment
-            ItineraryItems itinItemsFrag = new ItineraryItems();
-            itinItemsFrag.setContainerActivity(this);
-            System.out.println("TWO");
-            //Create transaction for list fragment
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.itinerary_items_outer_container, itinItemsFrag);
-            transaction.commit();
-            System.out.println("THREE");
+            //After this addition is made, give the user the option to add a flight to this event
+            this.LDialog = new AlertDialog.Builder(this)
+                    .setTitle("Add Flight")
+                    .setMessage("Do you want to add a flight to this event?")
+                    .setOnCancelListener(this)
+                    .setOnDismissListener(this)
+                    .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            if(getSupportFragmentManager().findFragmentById(R.id.add_event_container) != null) {
+                                getSupportFragmentManager()
+                                        .beginTransaction().
+                                        remove(getSupportFragmentManager().findFragmentById(R.id.add_event_container)).commit();
+                            }
+
+                            //Start itinerary events list fragment
+                            ItineraryItems itinItemsFrag = new ItineraryItems();
+                            itinItemsFrag.setContainerActivity(thisActivity);
+                            //Create transaction for list fragment
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                            transaction.replace(R.id.itinerary_items_outer_container, itinItemsFrag);
+                            transaction.commit();
+
+                        }
+                    })
+                    .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(thisActivity, AddFlightActivity.class);
+                            startActivity(intent);
+                        }
+                    }).create();
+            this.LDialog.show();
+            this.sendContactButton.setVisibility(View.VISIBLE);
             dateSet = false;
             timeSet = false;
             addingToggle = false;
@@ -143,7 +198,7 @@ public class Itinerary extends AppCompatActivity
         uri = null;
         ListView listView = (ListView) findViewById(R.id.itinerary_events);
         //Get bitmap of the Drawing
-        Bitmap bitmap = getScreenBitmap(view);
+        Bitmap bitmap = getWholeListViewItemsToBitmap(listView);
         Canvas canvas = new Canvas(bitmap);
         listView.draw(canvas);
         File file = null;
@@ -254,14 +309,20 @@ public class Itinerary extends AppCompatActivity
         int[] months = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
         month = months[month];
         System.out.println("MONTH: " + month);
-        String date = "month/day/month: " + month + "/" + dayOfMonth + "/" + year;
+
+        //Create a formatted and sort-safe version of the date
         this.newDateFormatted = month + "/" + dayOfMonth + "/" + year;
         this.newDate = getSingleDigitValue(year-2000) + "" + getSingleDigitValue(month) + "" + getSingleDigitValue(dayOfMonth);
+
+        //Show the formatted date on the button the user knows what they chose
+        Button changeDateButton = (Button)findViewById(R.id.set_date);
+        changeDateButton.setText(this.newDateFormatted);
+
+        //Check to see if all of the required parameters have been set
         this.dateSet = true;
         if(this.dateSet && this.timeSet && textCountNonZero){
             this.addEventButton.setVisibility(View.VISIBLE);
         }
-        TextView textView = (TextView)findViewById(R.id.test_text);
     }
 
     public void showTimePickerDialog(View view){
@@ -276,19 +337,22 @@ public class Itinerary extends AppCompatActivity
 
     @Override
     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+        //Create a formatted and sort-safe version of the time
         this.newTime = getSingleDigitValue(hour) + "" + getSingleDigitValue(minute);
-        System.out.println("TIME: " + this.newTime);
         this.newTimeFormatted = getTimeOfDayValuedHour(hour).get(0) + ":" + getSingleDigitValue(minute) + " " + getTimeOfDayValuedHour(hour).get(1);
-        //this.timeOfDay = getSingleDigitValue(hour) + "" + getSingleDigitValue(minute);
+
+        //Show the formatted time on the button
+        Button changeTimeButton = (Button)findViewById(R.id.set_time);
+        changeTimeButton.setText(this.newTimeFormatted);
+
+        //Check to see if all of the required parameters have been set
         this.timeSet = true;
         if(this.dateSet && this.timeSet && textCountNonZero){
             this.addEventButton.setVisibility(View.VISIBLE);
         }
-        TextView textView = (TextView) findViewById(R.id.test_text_2);
-        textView.setText(this.timeOfDay);
     }
 
-    private List<String> getTimeOfDayValuedHour(int hour){
+    public static List<String> getTimeOfDayValuedHour(int hour){
         if(hour == 12){
             List<String> returnArray = Arrays.asList("12", "PM");
             return returnArray;
@@ -309,10 +373,17 @@ public class Itinerary extends AppCompatActivity
     }
 
     public void addFlight(View view){
-        new GetFlightsTask().execute();
+        if(getSupportFragmentManager().findFragmentById(R.id.add_event_container) != null) {
+            getSupportFragmentManager()
+                    .beginTransaction().
+                    remove(getSupportFragmentManager().findFragmentById(R.id.add_event_container)).commit();
+        }
+
+        Intent intent = new Intent(this, AddFlightActivity.class);
+        startActivity(intent);
     }
 
-    private String getSingleDigitValue(int value){
+    public static String getSingleDigitValue(int value){
         if(value < 10){
             return "0"+value;
         }
@@ -327,6 +398,7 @@ public class Itinerary extends AppCompatActivity
     }
 
     public void getWeather(View view) {
+        //Makes API call to get the current weather
         EditText editText = (EditText)findViewById(R.id.zip_code_input);
         String zipCode = editText.getText().toString();
         new GetWeatherTask(zipCode, this).execute();
@@ -334,5 +406,23 @@ public class Itinerary extends AppCompatActivity
 
     public void openPlaylists(View view) {
         new GetPlaylistTask(itineraryWeather).execute();
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialogInterface) {
+
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialogInterface) {
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Button sendItinButton = (Button)findViewById(R.id.send_itin_button);
+        //sendItinButton.setVisibility(View.INVISIBLE);
+        //sendItinButton.setVisibility(View.VISIBLE);
     }
 }

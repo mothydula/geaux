@@ -79,8 +79,11 @@ public class AddEventFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        //Create reference for adding event button
         Button addEventButton = (Button)this.containerActivity.findViewById(R.id.add_event_button);
+        //Set this button to invisible until all of the required inputs are set
         addEventButton.setVisibility(View.INVISIBLE);
+        //Create reference for the input for event description
         EditText descriptionInput = (EditText)this.containerActivity.findViewById(R.id.description_input);
         descriptionInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -90,7 +93,7 @@ public class AddEventFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                System.out.println("COUNT: " + count);
+                //Check to see if the input is empty or not
                     if(count == 0) {
                         textCountNonZero = false;
                         addEventButton.setVisibility(View.INVISIBLE);
@@ -115,5 +118,15 @@ public class AddEventFragment extends Fragment {
 
     public void showTimePickerDialog(View view){
 
+    }
+
+    public void addFlight(View view){
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        new RetrieveViewModelTask(this.containerActivity, "WRITE").execute();
     }
 }

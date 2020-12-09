@@ -30,6 +30,7 @@ public class RetrieveViewModelTask  extends AsyncTask<Object, Void, JSONObject> 
     }
 
     private String read(Context context, String fileName) {
+        //Read the storage.json file if it exists
         try {
             FileInputStream fis = context.openFileInput(fileName);
             InputStreamReader isr = new InputStreamReader(fis);
@@ -51,6 +52,7 @@ public class RetrieveViewModelTask  extends AsyncTask<Object, Void, JSONObject> 
     }
 
     private boolean create(Context context, String fileName, String jsonString){
+        //Create the storage.json file if it doesn't exist
         String FILENAME = "storage.json";
         try {
             FileOutputStream fos = context.openFileOutput(fileName,Context.MODE_PRIVATE);
@@ -68,9 +70,9 @@ public class RetrieveViewModelTask  extends AsyncTask<Object, Void, JSONObject> 
     }
 
     private boolean write(Context context){
+        //Write to storage.json
         Gson gson = new Gson();
         String jsonString = gson.toJson(model);
-        System.out.println("MODEL JSON: " + jsonString);
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("storage.json", Context.MODE_PRIVATE));
             outputStreamWriter.write(jsonString);
@@ -79,7 +81,6 @@ public class RetrieveViewModelTask  extends AsyncTask<Object, Void, JSONObject> 
             Log.e("Exception", "File write failed: " + e.toString());
             return false;
         }
-        System.out.println("READ JSON: " + read(mainActivity.getBaseContext(), "storage.json"));
         return true;
     }
 
@@ -102,7 +103,6 @@ public class RetrieveViewModelTask  extends AsyncTask<Object, Void, JSONObject> 
             if(this.mode == "READ") {
                 String jsonString = read(mainActivity.getBaseContext(), "storage.json");
                 model = new Gson().fromJson(jsonString, MyViewModel.class);
-                System.out.println("THIS IS ME: " + model.test());
             }
             else if (this.mode == "WRITE") {
                 write(mainActivity.getBaseContext());

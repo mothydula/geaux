@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Geaux"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ContactsActivity"></activity>
+        <activity android:name=".AddFlightActivity"></activity>
+        <activity android:name=".ContactsActivity" />
         <activity android:name=".PlaylistActivity" />
         <activity android:name=".EventDetails" />
         <activity android:name=".EditItinerary" />

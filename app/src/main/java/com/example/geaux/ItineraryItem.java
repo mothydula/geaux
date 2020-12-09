@@ -8,14 +8,13 @@ public class ItineraryItem implements Comparable{
     private FlightObject flight;
     private String formattedDate;
     private String formattedTime;
-    public ItineraryItem(String date, String time, String formattedDate, String formattedTime, String description, FlightObject flight, String dateTime){
+    public ItineraryItem(String date, String time, String formattedDate, String formattedTime, String description, String dateTime){
         this.time = time;
         this.date = date;
         this.formattedTime = formattedTime;
         this.formattedDate = formattedDate;
         this.dateTime = dateTime;
         this.description = description;
-        this.flight = flight;
     }
 
     public String getTime(){
@@ -52,6 +51,10 @@ public class ItineraryItem implements Comparable{
 
     public String getDescription(){
         return this.description;
+    }
+
+    public void setFlight(FlightObject flight) {
+        this.flight = flight;
     }
 
     public FlightObject getFlight(){

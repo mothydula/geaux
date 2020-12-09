@@ -1,6 +1,5 @@
 package com.example.geaux;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,7 +35,10 @@ public class MainActivity extends AppCompatActivity {
         TextView appTitle = (TextView)findViewById(R.id.app_title);
         newButton.setVisibility(View.INVISIBLE);
         itinerariesButton.setVisibility(View.INVISIBLE);
+
+        //If a view model exists
         if(this.model != null) {
+            //Deserialize the json data and restore user data
             new RetrieveViewModelTask(this, "READ").execute();
         }
         else {
@@ -44,13 +46,14 @@ public class MainActivity extends AppCompatActivity {
                 new RetrieveViewModelTask(this, "READ").execute();
             }
             else{
-                System.out.println("BRIIIICK SQUAD");
+                //If no storage file or view model exists create a new view model
                 this.model = ViewModelProviders.of(this).get(MyViewModel.class);
                 findViewById(R.id.itineraries).setVisibility(View.VISIBLE);
                 findViewById(R.id.new_itinerary).setVisibility(View.VISIBLE);
             }
 
         }
+        //Create animations for the home screen
         Animation animSlideDown = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.slide_down);
         Animation animSlideUp = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.slide_up);
 
@@ -58,20 +61,15 @@ public class MainActivity extends AppCompatActivity {
         newButton.startAnimation(animSlideDown);
         appTitle.startAnimation(animSlideDown);
 
-        //findViewById(R.id.itineraries).setX(findViewById(R.id.itineraries).getX() - 100f);
-        ObjectAnimator animation = ObjectAnimator.ofFloat(findViewById(R.id.itineraries), "translationX", 100f);
-        animation.setDuration(2000);
-        //animation.start();
-
     }
 
     public void goToItineraries(View view) {
+        //Go to itineraries activity
         Intent itineraryIntent = new Intent(MainActivity.this, Itineraries.class);
         startActivity(itineraryIntent);
     }
 
     public boolean isFilePresent(Context context, String fileName) {
-        System.out.println(context.getFilesDir().getAbsolutePath());
         String path = context.getFilesDir().getAbsolutePath() + "/" + fileName;
         File file = new File(path);
         return file.exists();
@@ -81,11 +79,19 @@ public class MainActivity extends AppCompatActivity {
     public void onStop() {
 
         super.onStop();
+        //Write viewmodel data to the storage json once this actiivty is quit out of
         new RetrieveViewModelTask(MainActivity.this, "WRITE").execute();
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new RetrieveViewModelTask(this, "READ").execute();
+    }
+
     public void goToEditNew(View view) {
+        //Go to the edit itinerary page with the new itinerary toggle set to true
         newItinerary = true;
         Intent intent = new Intent(MainActivity.this, EditItinerary.class);
         intent.putExtra(NEW_ITINERARY, true);
@@ -128,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openHelp(View view) {
+        //Toggle the opening and closing of the help fragment
         TextView helpButton = (TextView)findViewById(R.id.help_button);
         if(getSupportFragmentManager().findFragmentById(R.id.outer_help_container) != null) {
             helpButton.setText("help");

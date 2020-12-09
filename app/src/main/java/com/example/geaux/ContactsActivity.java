@@ -37,8 +37,10 @@ public class ContactsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
 
-        System.out.println("ME AND DON C");
+        //Set up contacts adapter
         setupContactsAdapter();
+
+        //Grab the contacts from the content provider
         getContacts();
     }
 
@@ -51,6 +53,7 @@ public class ContactsActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
+        //Request permission to access the phone's contacts
         if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission is granted
@@ -95,6 +98,7 @@ public class ContactsActivity extends AppCompatActivity {
     }
 
     public void onContactClick(View view){
+        //Grab the contact id
         String contactId = (((TextView)view).getText().toString()).split(" :: ")[1];
         String emailAddress = "";
         Cursor emails = getContentResolver().query(
@@ -110,29 +114,19 @@ public class ContactsActivity extends AppCompatActivity {
         //Set up email intent
         Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
         emailIntent.setType("application/octet-stream");
+
         //Ad the contact's email address as an extra
         emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,new String[] { emailAddress });
         emailIntent.putExtra(Intent.EXTRA_STREAM, uri);
-        //emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        //emailIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
         //Allow the image to be an attachment
         emailIntent.setType("image/png");
-
-        //Grant permissions
-        /*List<ResolveInfo> resInfoList = this.getPackageManager().queryIntentActivities(emailIntent, PackageManager.MATCH_DEFAULT_ONLY);
-
-        for (ResolveInfo resolveInfo : resInfoList) {
-            String packageName = resolveInfo.activityInfo.packageName;
-            this.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        }*/
-
-        //Start email activity
-        //startActivity(Intent.createChooser(emailIntent, "Send mail using..."));
 
         Intent chooser = Intent.createChooser(emailIntent, "Share File");
 
         List<ResolveInfo> resInfoList = this.getPackageManager().queryIntentActivities(chooser, PackageManager.MATCH_DEFAULT_ONLY);
 
+        //Grant permission to send emails
         for (ResolveInfo resolveInfo : resInfoList) {
             String packageName = resolveInfo.activityInfo.packageName;
             this.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -148,5 +142,10 @@ public class ContactsActivity extends AppCompatActivity {
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        new RetrieveViewModelTask(this, "WRITE").execute();
     }
 }

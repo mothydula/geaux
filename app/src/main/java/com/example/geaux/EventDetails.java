@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -33,19 +34,24 @@ public class EventDetails extends AppCompatActivity implements DatePickerDialog.
     private String timeOfDay = "";
     private TextView dateText;
     private TextView timeText;
+    private boolean flightShowing = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
         TextView description = (TextView)findViewById(R.id.description_in_details);
+
+        //Set the description to be the global "current itinerary's" descriptioin
         description.setText(currentItineraryItem.getDescription());
         Activity thisActivity = this;
         dateText = (TextView) findViewById(R.id.date_in_details);
         timeText = (TextView) findViewById(R.id.time_in_details);
 
+        //Grab the date and time from currentItinerary
         dateText.setText(currentItineraryItem.getFormattedDate());
         timeText.setText(currentItineraryItem.getFormattedTime());
 
+        //Create dialog for removing this event
         AlertDialog LDialog = new AlertDialog.Builder(this)
                 .setTitle("Remove Event")
                 .setMessage("Are you sure you want to remove this event?")
@@ -53,7 +59,7 @@ public class EventDetails extends AppCompatActivity implements DatePickerDialog.
                 .setOnDismissListener(this)
                 .setNegativeButton("NO", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        System.out.println("CANCELLED");
+
                     }
                 })
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
@@ -99,32 +105,53 @@ public class EventDetails extends AppCompatActivity implements DatePickerDialog.
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth){
         int[] months = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
         month = months[month];
-        System.out.println("MONTH: " + month);
-        String date = "month/day/month: " + month + "/" + dayOfMonth + "/" + year;
+
+        //Create a formatted version of the date for displaying purposes
         this.newDateFormatted = month + "/" + dayOfMonth + "/" + year;
+
+        //Create a specially constructed version of the date for sorting purposes
         this.newDate = getSingleDigitValue(year-2000) + "" + getSingleDigitValue(month) + "" + getSingleDigitValue(dayOfMonth);
+
+        //Set the date for this itinerary item
         currentItineraryItem.setDate(this.newDate);
         currentItineraryItem.setFormattedDate(this.newDateFormatted);
         TextView textView = (TextView)findViewById(R.id.date_in_details);
+
+        //
         textView.setText(this.newDateFormatted);
+
+        //Sort the events in the current itinerary based on time/date
         Collections.sort(currentItinerary.getEvents());
+
+        //Update array adapter
         itineraryEventArrayAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+        //Get specially constructed time for sorting purposes
         this.newTime = getTimeOfDayValuedHour(hour).get(0) + "" + getSingleDigitValue(minute);
+
+        //Get formated time version for displat purposes
         this.newTimeFormatted = getTimeOfDayValuedHour(hour).get(0) + ":" + getSingleDigitValue(minute) + " " + getTimeOfDayValuedHour(hour).get(1);
+
         this.timeOfDay = getSingleDigitValue(hour) + "" + getSingleDigitValue(minute);
+
+        //Set the time of the itinerary item
         currentItineraryItem.setTime(this.newTime);
         currentItineraryItem.setFormattedTime(this.newTimeFormatted);
+
+
         TextView textView = (TextView) findViewById(R.id.time_in_details);
         textView.setText(this.newTimeFormatted);
+
+        //Sort the itinerary events
         Collections.sort(currentItinerary.getEvents());
         itineraryEventArrayAdapter.notifyDataSetChanged();
     }
 
     private List<String> getTimeOfDayValuedHour(int hour){
+        //Convert the hour to a twelve hour time along with a PM or AM
         if(hour == 12){
             List<String> returnArray = Arrays.asList("12", "PM");
             return returnArray;
@@ -170,6 +197,28 @@ public class EventDetails extends AppCompatActivity implements DatePickerDialog.
     }
 
     public void getFlight(View view) {
-        new GetFlightsTask().execute();
+        //If the flight is already showing, hide it
+        if(flightShowing){
+            ((Button)view).setText("show flight details");
+            if(getSupportFragmentManager().findFragmentById(R.id.flight_details_outer_container) != null) {
+                getSupportFragmentManager()
+                        .beginTransaction().
+                        remove(getSupportFragmentManager().findFragmentById(R.id.flight_details_outer_container)).commit();
+            }
+            flightShowing = false;
+        }
+        //If the flight is not showing, show it
+        else{
+            ((Button)view).setText("hide flight details");
+            //Start itinerary events list fragment
+            FlightDetailsFragment flightDetailsFrag = new FlightDetailsFragment();
+            flightDetailsFrag.setContainerActivity(this);
+            //Create transaction for list fragment
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.flight_details_outer_container, flightDetailsFrag);
+            transaction.commit();
+            flightShowing = true;
+        }
+
     }
 }

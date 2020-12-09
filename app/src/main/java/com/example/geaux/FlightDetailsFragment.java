@@ -5,23 +5,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import java.util.Collections;
-
-import static com.example.geaux.MainActivity.currentItinerary;
+import static com.example.geaux.EventArrayAdapter.currentItineraryItem;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ItineraryItems#newInstance} factory method to
+ * Use the {@link FlightDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ItineraryItems extends Fragment {
-    public Activity containerActivity = null;
+public class FlightDetailsFragment extends Fragment {
+    private Activity containerActivity;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -31,9 +29,7 @@ public class ItineraryItems extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public static EventArrayAdapter itineraryEventArrayAdapter;
-
-    public ItineraryItems() {
+    public FlightDetailsFragment() {
         // Required empty public constructor
     }
 
@@ -43,16 +39,20 @@ public class ItineraryItems extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment ItineraryItems.
+     * @return A new instance of fragment FlightDetailsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ItineraryItems newInstance(String param1, String param2) {
-        ItineraryItems fragment = new ItineraryItems();
+    public static FlightDetailsFragment newInstance(String param1, String param2) {
+        FlightDetailsFragment fragment = new FlightDetailsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    public void setContainerActivity(Activity containerActivity) {
+        this.containerActivity = containerActivity;
     }
 
     @Override
@@ -64,25 +64,22 @@ public class ItineraryItems extends Fragment {
         }
     }
 
-    public void setContainerActivity(Activity containerActivity) {
-        this.containerActivity = containerActivity;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_itinerary_items, container, false);
+        return inflater.inflate(R.layout.fragment_flight_details, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ListView listView = (ListView) this.containerActivity.findViewById(R.id.itinerary_events);
-
-        //Sort and display the itinerary events using an array adapter
-        Collections.sort(currentItinerary.getEvents());
-        itineraryEventArrayAdapter = new EventArrayAdapter(this.containerActivity, currentItinerary.getEvents());
-        listView.setAdapter(itineraryEventArrayAdapter);
+        TextView departure = (TextView)this.containerActivity.findViewById(R.id.flight_departure_time);
+        TextView arrival = (TextView)this.containerActivity.findViewById(R.id.flight_arrival_time);
+        //Set text of flight details
+        if(currentItineraryItem != null && currentItineraryItem.getFlight() != null){
+        departure.setText("From " + currentItineraryItem.getFlight().getDepartureLocation() + " on " + currentItineraryItem.getFlight().getDepartureDate() + " at " + currentItineraryItem.getFlight().getDepartureTime());
+        arrival.setText("From " + currentItineraryItem.getFlight().getArrivalLocation() + " on " + currentItineraryItem.getFlight().getArrivalDate() + " at " + currentItineraryItem.getFlight().getArrivalTime());
+        }
     }
 }
